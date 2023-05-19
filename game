@@ -1,0 +1,102 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the game window
+window_width = 800
+window_height = 400
+window = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption("Endless Runner Game")
+
+# Define colors
+black = (0, 0, 0)
+white = (255, 255, 255)
+
+# Load images
+player_img = pygame.image.load("player.png")
+enemy_img = pygame.image.load("enemy.png")
+item_img = pygame.image.load("item.png")
+
+# Define player properties
+player_width = 50
+player_height = 50
+player_x = 50
+player_y = window_height - player_height
+player_speed = 5
+player_jump = 10
+is_jumping = False
+
+# Define enemy properties
+enemy_width = 50
+enemy_height = 50
+enemy_x = window_width
+enemy_y = window_height - enemy_height
+enemy_speed = 7
+
+# Define item properties
+item_width = 30
+item_height = 30
+item_x = window_width
+item_y = random.randint(50, window_height - item_height - 50)
+item_speed = 5
+
+score = 0
+
+clock = pygame.time.Clock()
+
+def draw_text(text, font, color, x, y):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+    window.blit(text_surface, text_rect)
+
+def collision_detection(obj1_x, obj1_y, obj1_width, obj1_height, obj2_x, obj2_y, obj2_width, obj2_height):
+    if obj1_x + obj1_width > obj2_x and obj1_x < obj2_x + obj2_width and obj1_y + obj1_height > obj2_y and obj1_y < obj2_y + obj2_height:
+        return True
+    return False
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not is_jumping:
+                is_jumping = True
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_ESCAPE]:
+        running = False
+
+    # Update player position
+    if is_jumping:
+        player_y -= player_jump
+        player_jump -= 1
+        if player_jump < -10:
+            is_jumping = False
+            player_jump = 10
+    else:
+        player_y += player_speed
+
+    # Update enemy position
+    enemy_x -= enemy_speed
+
+    # Update item position
+    item_x -= item_speed
+
+    # Check for collisions
+    if collision_detection(player_x, player_y, player_width, player_height, enemy_x, enemy_y, enemy_width, enemy_height):
+        running = False
+
+    if collision_detection(player_x, player_y, player_width, player_height, item_x, item_y, item_width, item_height):
+        score += 1
+        item_x = window_width
+        item_y = random.randint(50, window_height - item_height - 50)
+
+    # Draw everything on the screen
+    window.fill(white)
+    window.blit(player_img, (player_x, player_y))
+    window.blit(enemy
